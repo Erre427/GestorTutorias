@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGA - Gestor de Asesorías TecNM Tijuana</title>
+    <!-- Fuente Inter recomendada para estilos modernos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos Phosphor (Modernos y ligeros) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Barra de navegación principal -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand" onclick="navigate('home')">
+                <div class="logo-box">
+                    <i class="ph-bold ph-graduation-cap"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">TecNM Tijuana</span>
+                    <span class="brand-subtitle">Gestor de Asesorías</span>
+                </div>
+            </div>
+            <div class="nav-links">
+                <button onclick="navigate('home')" class="nav-btn" id="nav-home">
+                    <i class="ph ph-house"></i> Inicio
+                </button>
+                <button onclick="navigate('student-panel')" class="nav-btn" id="nav-student" style="display:none;">
+                    <i class="ph ph-books"></i> Mis Asesorías
+                </button>
+                <button onclick="navigate('tutor-panel')" class="nav-btn" id="nav-tutor" style="display:none;">
+                    <i class="ph ph-chalkboard-teacher"></i> Panel Asesor
+                </button>
+                <button onclick="navigate('coordinator-panel')" class="nav-btn" id="nav-coordinator"
+                    style="display:none;">
+                    <i class="ph ph-briefcase"></i> Panel Coordinador
+                </button>
+
+                <div class="user-profile" id="nav-profile" style="display:none;">
+                    <div class="avatar">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <span id="user-name-display" class="user-name">Usuario</span>
+                    <button onclick="logout()" class="nav-btn btn-icon" title="Cerrar Sesión">
+                        <i class="ph ph-sign-out"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenedor principal donde se inyectan las vistas -->
+    <main id="app-container" class="fade-in">
+        <!-- Contenido dinámico -->
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Tecnológico Nacional de México - Campus Tijuana.</p>
+            <p class="footer-sub">Sistema Gestor de Asesorías - Inspirado en AMBAR</p>
+        </div>
+    </footer>
+
+    <!-- Contenedor general para notificaciones tipo Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ============================================== -->
+    <!-- TEMPLATES DE LAS VISTAS (SPA)                  -->
+    <!-- ============================================== -->
+
+    <!-- VISTA: INICIO / LOGIN -->
+    <template id="view-home">
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="badge">SGA Institucional</div>
+                <h1>Bienvenido al <span class="highlight">Gestor de Asesorías</span></h1>
+                <p class="hero-description">
+                    Plataforma oficial del TecNM Campus Tijuana para solicitar y registrar
+                    asesorías académicas en ciencias básicas y materias de especialidad.
+                </p>
+
+                <div class="role-selection">
+                    <div class="role-card student-card" onclick="login('student')">
+                        <div class="card-icon">
+                            <i class="ph-fill ph-student"></i>
+                        </div>
+                        <h2>Módulo Estudiantes</h2>
+                        <p>Busca materias, consulta horarios y solicita asesorías sin costo.</p>
+                        <button class="btn btn-primary">
+                            Entrar como Estudiante <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="role-card tutor-card" onclick="login('tutor')">
+                        <div class="card-icon">
+                            <i class="ph-fill ph-chalkboard-teacher"></i>
+                        </div>
+                        <h2>Módulo Asesores</h2>
+                        <p>Registra tus materias y administra las solicitudes de los alumnos.</p>
+                        <button class="btn btn-secondary">
+                            Entrar como Asesor <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="role-card coordinator-card" onclick="login('coordinator')">
+                        <div class="card-icon">
+                            <i class="ph-fill ph-briefcase"></i>
+                        </div>
+                        <h2>Módulo Coordinación</h2>
+                        <p>Administra salones y aprueba materias ofertadas por los asesores.</p>
+                        <button class="btn btn-outline" style="border-color: var(--info); color: var(--info);">
+                            Entrar como Coordinador <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- VISTA: PANEL ESTUDIANTE -->
+    <template id="view-student-panel">
+        <section class="dashboard">
+            <header class="dashboard-header">
+                <div>
+                    <h2>Panel del Estudiante</h2>
+                    <p>Solicita tus asesorías en materias de ciencias básicas y especialidad.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('modal-request-tutoring')">
+                    <i class="ph-bold ph-plus"></i> Nueva Solicitud
+                </button>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="ph ph-clock-counter-clockwise"></i></div>
+                        <div class="stat-info">
+                            <h3>Pendientes</h3>
+                            <p id="student-stat-pending">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon highlight"><i class="ph ph-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3>Aprobadas</h3>
+                            <p id="student-stat-approved">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container mt-4">
+                    <div class="table-header">
+                        <h3>Mis Solicitudes</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Materia</th>
+                                <th>Asesor</th>
+                                <th>Horario</th>
+                                <th>Salón</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-requests-body">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                    <div id="student-empty-state" class="empty-state" style="display:none;">
+                        <i class="ph ph-files"></i>
+                        <p>No tienes solicitudes de asesoría activas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- VISTA: PANEL ASESOR -->
+    <template id="view-tutor-panel">
+        <section class="dashboard">
+            <header class="dashboard-header">
+                <div>
+                    <h2>Panel del Asesor</h2>
+                    <p>Gestiona las materias que impartes y las solicitudes recibidas.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('modal-register-subject')">
+                    <i class="ph-bold ph-plus"></i> Registrar Materia
+                </button>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="ph ph-books"></i></div>
+                        <div class="stat-info">
+                            <h3>Materias Registradas</h3>
+                            <p id="tutor-stat-subjects">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class="ph ph-clock"></i></div>
+                        <div class="stat-info">
+                            <h3>Materias Pendientes</h3>
+                            <p id="tutor-stat-pending-subjects">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="ph ph-users"></i></div>
+                        <div class="stat-info">
+                            <h3>Solicitudes Recibidas</h3>
+                            <p id="tutor-stat-requests">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-split mt-4">
+                    <!-- Lista de Materias del Asesor -->
+                    <div class="panel-section">
+                        <div class="table-header">
+                            <h3>Mis Materias Ofertadas</h3>
+                        </div>
+                        <div class="subject-list" id="tutor-subjects-list">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+
+                    <!-- Lista de Solicitudes Recibidas -->
+                    <div class="panel-section">
+                        <div class="table-header">
+                            <h3>Solicitudes Recibidas</h3>
+                        </div>
+                        <div class="requests-list" id="tutor-requests-list">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- VISTA: PANEL COORDINADOR -->
+    <template id="view-coordinator-panel">
+        <section class="dashboard">
+            <header class="dashboard-header">
+                <div>
+                    <h2>Panel de Coordinación</h2>
+                    <p>Revisa y aprueba las propuestas de materias y asigna salones.</p>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class="ph ph-clipboard-text"></i></div>
+                        <div class="stat-info">
+                            <h3>Propuestas Pendientes</h3>
+                            <p id="coord-stat-pending">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon highlight"><i class="ph ph-check-square"></i></div>
+                        <div class="stat-info">
+                            <h3>Materias Aprobadas</h3>
+                            <p id="coord-stat-approved">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container mt-4">
+                    <div class="table-header">
+                        <h3>Propuestas de Asesorías</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Asesor</th>
+                                <th>Materia</th>
+                                <th>Horario</th>
+                                <th>Cupo Solicitado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coord-proposals-body">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                    <div id="coord-empty-state" class="empty-state" style="display:none;">
+                        <i class="ph ph-check-circle"></i>
+                        <p>No hay propuestas pendientes por revisar.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ============================================== -->
+    <!-- MODALES                                        -->
+    <!-- ============================================== -->
+
+    <!-- Modal: Nueva Solicitud (Estudiante) -->
+    <div id="modal-request-tutoring" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Solicitar Asesoría</h3>
+                <button class="btn-icon" onclick="closeModal('modal-request-tutoring')"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-request" onsubmit="submitTutoringRequest(event)">
+                    <div class="form-group">
+                        <label for="req-subject">Materia</label>
+                        <select id="req-subject" required class="form-control" onchange="updateAvailableTutors()">
+                            <option value="">Selecciona una materia...</option>
+                            <!-- Inyectado por JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="req-tutor">Asesor Disponible</label>
+                        <select id="req-tutor" required class="form-control" disabled
+                            onchange="updateSelectedTutorInfo()">
+                            <option value="">Selecciona la materia primero...</option>
+                        </select>
+                        <small id="tutor-info-help"
+                            style="display:none; color: var(--tecnm-blue); margin-top: 0.5rem;"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="req-topic">Tema específico o dudas</label>
+                        <textarea id="req-topic" rows="3" class="form-control"
+                            placeholder="Describe brevemente en qué necesitas ayuda..." required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('modal-request-tutoring')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Registrar Materia (Asesor) -->
+    <div id="modal-register-subject" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Materia para Asesorar</h3>
+                <button class="btn-icon" onclick="closeModal('modal-register-subject')"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-register" onsubmit="submitSubjectRegistration(event)">
+                    <div class="form-group">
+                        <label for="reg-subject-name">Nombre de la Materia</label>
+                        <input type="text" id="reg-subject-name" class="form-control"
+                            placeholder="Ej. Cálculo Diferencial" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-category">Área / Categoría</label>
+                        <select id="reg-category" class="form-control" required>
+                            <option value="">Seleccionar área...</option>
+                            <option value="Ciencias Básicas">Ciencias Básicas</option>
+                            <option value="Especialidad">De Especialidad</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-schedule">Horario Disponible</label>
+                        <input type="text" id="reg-schedule" class="form-control"
+                            placeholder="Ej. Martes y Jueves 14:00 - 16:00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-capacity">Cupo Máximo (Alumnos)</label>
+                        <input type="number" id="reg-capacity" class="form-control" placeholder="Ej. 15" min="1"
+                            required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('modal-register-subject')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Aprobar Materia (Coordinador) -->
+    <div id="modal-approve-subject" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Aprobar y Asignar Salón</h3>
+                <button class="btn-icon" onclick="closeModal('modal-approve-subject')"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-approve" onsubmit="submitSubjectApproval(event)">
+                    <input type="hidden" id="approve-subject-id">
+                    <div class="form-group">
+                        <p><strong>Asesor:</strong> <span id="approve-tutor-name"></span></p>
+                        <p><strong>Materia:</strong> <span id="approve-subject-name"></span></p>
+                        <p><strong>Horario:</strong> <span id="approve-subject-schedule"></span></p>
+                        <p><strong>Cupo Solicitado:</strong> <span id="approve-subject-capacity"></span> alumnos</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="approve-classroom">Salón Asignado</label>
+                        <select id="approve-classroom" class="form-control" required>
+                            <option value="">Selecciona un salón disponible...</option>
+                            <!-- Inyectado por JS -->
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('modal-approve-subject')">Cancelar</button>
+                        <button type="button" class="btn" style="background-color: var(--danger); color: white;"
+                            onclick="rejectSubject()">Rechazar</button>
+                        <button type="submit" class="btn btn-primary">Aprobar Propuesta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
